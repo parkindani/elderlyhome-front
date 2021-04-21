@@ -47,11 +47,12 @@
   align-items: center;
 }
 
-.crime-marker {
+.home-marker {
   background: none;
   border: none;
+  width: fit-content;
 }
 
-.crime-marker img {
+.home-marker img {
   width: 25px;
 }
