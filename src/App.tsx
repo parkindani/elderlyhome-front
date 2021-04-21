@@ -1,41 +1,47 @@
-import React, { Component } from 'react';
-import GoogleMapReact from 'google-map-react';
- 
-type AnyReactComponentProps = {
-  text: string;
-  lat: number;
-  lng: number;
-}
-const AnyReactComponent  = ({ text }: AnyReactComponentProps) => <div>{text}</div>;
- 
+import React, {useState, useEffect} from "react";
+import GoogleMapReact from "google-map-react";
+import getMarkers from "./api/marker";
 
-class SimpleMap extends Component {
-  static defaultProps = {
-    center: {
-      lat: 59.95,
-      lng: 30.33
-    },
-    zoom: 11
-  };
- 
-  render() {
-    return (
-      // Important! Always set the container height explicitly
-      <div style={{ height: '100vh', width: '100%' }}>
-        <GoogleMapReact
-          bootstrapURLKeys={{ key: "AIzaSyCAKQJBl3rgofeiyxOVqpcOpNw_PZXYCTY" }}
-          defaultCenter={{lat: 59.95, lng: 30.44}}
-          defaultZoom={11}
-        >
-          <AnyReactComponent
-            lat={59.955413}
-            lng={30.337844}
-            text="My Marker"
-          />
-        </GoogleMapReact>
-      </div>
-    );
-  }
-}
- 
-export default SimpleMap;
+type AnyReactComponentProps = {
+  text: any;
+  lat: any;
+  lng: any;
+};
+const Marker = ({ text }: AnyReactComponentProps) => (
+  <div>{text}</div>
+);
+
+const ElderlyMap = () => {
+
+  const [markers, setMarkers] = useState<any[]>([]);
+
+  useEffect(()=> {
+    let complete = false;
+    async function get() {
+      const result = await getMarkers();
+      if (!complete) setMarkers(result);      
+    }
+    get();
+    return () => {
+      complete = true;
+    };
+  },[]);
+
+  return (
+    <div style={{ height: "100vh", width: "100%" }}>
+      <GoogleMapReact
+        bootstrapURLKeys={{ key: "AIzaSyCAKQJBl3rgofeiyxOVqpcOpNw_PZXYCTY" }}
+        defaultCenter={{ lat: 37.5326, lng: 127.024612 }}
+        defaultZoom={11}
+      >
+
+        { markers !== [] ? markers.map((e,i) => {
+          return <Marker lat={e.REFINE_WGS84_LAT} lng={e.REFINE_WGS84_LOGT} text={e.BIZPLC_NM} key = {i}/>
+        }) : ''}
+        
+      </GoogleMapReact>
+    </div>
+  );
+};
+
+export default ElderlyMap;
