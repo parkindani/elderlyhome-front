@@ -4,6 +4,7 @@ import useSupercluster from "use-supercluster";
 import axios from "axios";
 import useSWR from "swr";
 import styled from "styled-components";
+import _ from "lodash";
 
 const fetcher = (url: string) =>
   axios.get(url).then((res) => res.data.OldPersonRecuperationFacility[1].row);
@@ -16,6 +17,9 @@ const ElderlyMap = () => {
   const url = "/data/data.json";
   const { data, error } = useSWR(url, fetcher);
   const homes = data && !error ? data : [];
+  // const newHomes = _.uniqBy(homes, 'REFINE_WGS84_LOGT');
+  // console.log('homes:', homes);
+  // console.log('newhomes:',newHomes);
   const points = homes.map(
     (home: {
       LICENSG_DE: string;
@@ -49,22 +53,21 @@ const ElderlyMap = () => {
 
   return (
     <Style>
-          <div style={{ height: "100vh", width: "100%" }}>
-      <GoogleMapReact
-        bootstrapURLKeys={{ key: process.env.REACT_APP_API_KEY! }}
-        defaultCenter={{ lat: 37.5326, lng: 127.024612 }}
-        defaultZoom={11}
-        onChange={({ zoom, bounds }) => {
-          setZoom(zoom);
-          setBounds([
-            bounds.nw.lng,
-            bounds.se.lat,
-            bounds.se.lng,
-            bounds.nw.lat,
-          ]);
-        }}
-      >
-        
+      <div style={{ height: "100vh", width: "100%" }}>
+        <GoogleMapReact
+          bootstrapURLKeys={{ key: process.env.REACT_APP_API_KEY! }}
+          defaultCenter={{ lat: 37.5326, lng: 127.024612 }}
+          defaultZoom={11}
+          onChange={({ zoom, bounds }) => {
+            setZoom(zoom);
+            setBounds([
+              bounds.nw.lng,
+              bounds.se.lat,
+              bounds.se.lng,
+              bounds.nw.lat,
+            ]);
+          }}
+        >
           {clusters.map((cluster, index) => {
             const [longitude, latitude] = cluster.geometry.coordinates;
             const {
@@ -73,14 +76,16 @@ const ElderlyMap = () => {
               homeName,
             } = cluster.properties;
 
-            if (isCluster) {
+            if (isCluster && pointCount > 2) {
               return (
                 <Marker key={`cluster-${index}`} lat={latitude} lng={longitude}>
                   <div
                     className="cluster-marker"
                     style={{
-                      width: `${10 + (pointCount / points.length) * 20}px`,
-                      height: `${10 + (pointCount / points.length) * 20}px`,
+                      width: `${10 + (pointCount / points.length) * 70 * 20}px`,
+                      height: `${
+                        10 + (pointCount / points.length) * 70 * 20
+                      }px`,
                     }}
                     onClick={() => {}}
                   >
@@ -88,44 +93,50 @@ const ElderlyMap = () => {
                   </div>
                 </Marker>
               );
+            } else if (!pointCount || pointCount < 2) {
+              return (
+                <Marker key={`home-${index}`} lat={latitude} lng={longitude}>
+                  <button className="home-marker">
+                    <p>{homeName}</p>
+                  </button>
+                </Marker>
+              );
+            } else {
+              // return (
+              //   <Marker key={`home-${index}`} lat={latitude} lng={longitude}>
+              //     <button className="home-marker">
+              //       <p>{'dual'}</p>
+              //     </button>
+              //   </Marker>
+              // )
             }
-
-            return (
-              <Marker key={`home-${index}`} lat={latitude} lng={longitude}>
-                <button className="home-marker">
-                  <p>{homeName}</p>
-                </button>
-              </Marker>
-            );
           })}
-      </GoogleMapReact>
-    </div>
-
+        </GoogleMapReact>
+      </div>
     </Style>
-
   );
 };
 
 const Style = styled.div`
-.cluster-marker {
-  color: #fff;
-  background: #1978c8;
-  border-radius: 50%;
-  padding: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  .cluster-marker {
+    color: #fff;
+    background: #1978c8;
+    border-radius: 50%;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-.home-marker {
-  background: white;
-  border: green;
-  min-width: 120px;
-}
+  .home-marker {
+    background: white;
+    border: green;
+    min-width: 120px;
+  }
 
-.home-marker img {
-  width: 25px;
-}
+  .home-marker img {
+    width: 25px;
+  }
 `;
 
 export default ElderlyMap;
