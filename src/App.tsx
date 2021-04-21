@@ -4,12 +4,13 @@ import useSupercluster from "use-supercluster";
 import axios from 'axios';
 import useSWR from 'swr'
 
-
 const fetcher = (url: string) => axios.get(url).then(res => res.data.OldPersonRecuperationFacility[1].row);
 
 const Marker = ({ children }: any) => children;
 
 const ElderlyMap = () => {
+
+  console.log('api', process.env.REACT_APP_API_KEY);
 
   const [bounds, setBounds] = useState<any[]>([]);
   const [zoom, setZoom] = useState(10);
@@ -39,7 +40,9 @@ const ElderlyMap = () => {
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <GoogleMapReact
-        bootstrapURLKeys={{ key: "AIzaSyCAKQJBl3rgofeiyxOVqpcOpNw_PZXYCTY" }}
+
+      
+        bootstrapURLKeys={{ key: process.env.REACT_APP_API_KEY! }}
         defaultCenter={{ lat: 37.5326, lng: 127.024612 }}
         defaultZoom={11}
         onChange={({zoom, bounds}) => {
