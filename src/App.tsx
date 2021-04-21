@@ -30,6 +30,7 @@ const ElderlyMap = () => {
   }));
 
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {clusters, supercluster} = useSupercluster({
     points,
     bounds,
