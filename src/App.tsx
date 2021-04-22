@@ -4,7 +4,7 @@ import useSupercluster from "use-supercluster";
 import axios from "axios";
 import useSWR from "swr";
 import styled from "styled-components";
-import _ from "lodash";
+// import _ from "lodash";
 
 const fetcher = (url: string) =>
   axios.get(url).then((res) => res.data.OldPersonRecuperationFacility[1].row);
