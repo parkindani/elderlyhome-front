@@ -17,7 +17,7 @@ const ElderlyMap = () => {
   const [zoom, setZoom] = useState(10);
   // const url = "/data/data.json";
   const [url, setUrl] = useState(
-    "http://127.0.0.1:8000/homeall/?se_lat=37.31568883135307&nw_lat=37.331779826062956&nw_lng=127.09373394074271&se_lng=127.12077060761283"
+    "http://127.0.0.1/homeall/?se_lat=37.31568883135307&nw_lat=37.331779826062956&nw_lng=127.09373394074271&se_lng=127.12077060761283"
   );
   const { data, error } = useSWR(url, fetcher);
   const homes = data && !error ? data : [];
@@ -66,7 +66,7 @@ const ElderlyMap = () => {
               bounds.nw.lat,
             ]);
             setUrl(
-              `http://127.0.0.1:8000/homeall/?se_lat=${bounds.se.lat}&nw_lat=${bounds.nw.lat}6&nw_lng=${bounds.nw.lng}&se_lng=${bounds.se.lng}`
+              `http://127.0.0.1/homeall/?se_lat=${bounds.se.lat}&nw_lat=${bounds.nw.lat}6&nw_lng=${bounds.nw.lng}&se_lng=${bounds.se.lng}`
             );
           }}
         >
