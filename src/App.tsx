@@ -8,35 +8,38 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouseUser } from "@fortawesome/free-solid-svg-icons";
 
 const fetcher = (url: string) =>
-  axios.get(url).then((response) => response.data);
+  axios.get(url).then((res) => res.data.OldPersonRecuperationFacility[1].row);
 
 const Marker = ({ children }: any) => children;
 
 const ElderlyMap = () => {
   const [bounds, setBounds] = useState<any[]>([]);
   const [zoom, setZoom] = useState(10);
-  // const url = "/data/data.json";
-  const [url, setUrl] = useState(
-    "http://127.0.0.1:8000/homeall/?se_lat=37.31568883135307&nw_lat=37.331779826062956&nw_lng=127.09373394074271&se_lng=127.12077060761283"
-  );
+  const url = "/data/data.json";
   const { data, error } = useSWR(url, fetcher);
   const homes = data && !error ? data : [];
   const points = homes.map(
     (home: {
-      home_name: string;
-      geo_lat_decimal: string;
-      geo_lng_decimal: string;
+      LICENSG_DE: string;
+      BIZPLC_NM: string;
+      REFINE_WGS84_LOGT: string;
+      REFINE_WGS84_LAT: string;
+      TOT_PSN_CNT: number;
+      ENTRNC_PSN_CAPA: number;
     }) => ({
       type: "Feature",
       properties: {
         cluster: false,
-        homeName: home.home_name,
+        homeId: home.LICENSG_DE,
+        homeName: home.BIZPLC_NM,
+        currentPersonCount: home.TOT_PSN_CNT,
+        personCapacity: home.ENTRNC_PSN_CAPA,
       },
       geometry: {
         type: "Point",
         coordinates: [
-          parseFloat(home.geo_lng_decimal),
-          parseFloat(home.geo_lat_decimal),
+          parseFloat(home.REFINE_WGS84_LOGT),
+          parseFloat(home.REFINE_WGS84_LAT),
         ],
       },
     })
@@ -65,9 +68,6 @@ const ElderlyMap = () => {
               bounds.se.lng,
               bounds.nw.lat,
             ]);
-            setUrl(
-              `http://127.0.0.1:8000/homeall/?se_lat=${bounds.se.lat}&nw_lat=${bounds.nw.lat}6&nw_lng=${bounds.nw.lng}&se_lng=${bounds.se.lng}`
-            );
           }}
         >
           {clusters.map((cluster, index) => {
@@ -76,6 +76,8 @@ const ElderlyMap = () => {
               cluster: isCluster,
               point_count: pointCount,
               homeName,
+              currentPersonCount,
+              personCapacity,
             } = cluster.properties;
 
             if (isCluster) {
@@ -110,6 +112,19 @@ const ElderlyMap = () => {
                     <div>
                       <FontAwesomeIcon icon={faHouseUser} />
                       <p>{homeName}</p>
+                    </div>
+                    <div>
+                      <p>
+                        {currentPersonCount &&
+                          currentPersonCount +
+                            "/" +
+                            personCapacity +
+                            " " +
+                            Math.round(
+                              (currentPersonCount / personCapacity) * 100
+                            ) +
+                            "%"}
+                      </p>
                     </div>
                   </button>
                 </Marker>
